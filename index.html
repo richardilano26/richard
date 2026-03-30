@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="index.css">
+  <title>Employment Records Management</title>
+  <style>
+    /* Drag & Drop styles */
+    #photoDrop {
+      width: 100px;
+      height: 100px;
+      border: 2px dashed #ccc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    #photoDrop img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    #photoDrop.hover {
+      border-color: #666;
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- HEADER -->
+    <header style="display:flex; flex-direction:column; align-items:flex-start;">
+      <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:15px;">
+          <img src="pagadian-city-logo.png" style="width:70px;">
+          <div>
+            <h1>Employment Records Management</h1>
+            <div class="small">City Government of Pagadian • Employee Records System</div>
+          </div>
+        </div>
+        <button id="logoutBtn" class="danger">🔒 Logout</button>
+      </div>
+      <div class="nav-buttons" style="margin-top:12px;">
+        <a href="index.html" class="btn">Home</a>
+        <a href="dashboard.html" class="btn">Dashboard</a>
+        <a href="settings.html" class="btn">Settings</a>
+      </div>
+    </header>
+
+    <div class="grid">
+
+      <!-- TABLE -->
+      <div class="card">
+        <div class="top-row">
+          <div class="controls">
+            <input id="q" type="text" placeholder="Search..." />
+            <select id="filter-status">
+              <option value="">All Status</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Contract">Contract</option>
+            </select>
+            <select id="filter-department">
+              <option value="">All Departments</option>
+            </select>
+            <select id="sort">
+              <option value="name_asc">Name ↑</option>
+              <option value="name_desc">Name ↓</option>
+              <option value="date_hired_desc">Date Hired ↓</option>
+              <option value="date_hired_asc">Date Hired ↑</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Profile</th>
+                <th>Name & Position</th>
+                <th>Department</th>
+                <th>Email / Contact</th>
+                <th>Hired</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+          <div id="empty" class="empty" style="display:none">No records yet.</div>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <div class="card">
+        <h3 id="formTitle">Add Employee</h3>
+        <form id="employeeForm">
+          <input id="name" placeholder="Full Name" required>
+          <input id="date_hired" type="date">
+          <input id="position" placeholder="Position">
+          <input id="department" placeholder="Department">
+          <select id="status">
+            <option>Full-time</option>
+            <option>Part-time</option>
+            <option>Contract</option>
+          </select>
+          <input id="email" type="email" placeholder="Email">
+          <input id="contact" placeholder="Contact">
+          <textarea id="notes" placeholder="Notes"></textarea>
+
+          <!-- PROFILE UPLOAD -->
+          <div id="photoDrop">
+            <span>Drop or Click</span>
+          </div>
+          <input type="file" id="photoInput" accept="image/*" style="display:none">
+
+          <button type="submit">Save</button>
+          <button type="button" id="resetBtn">Reset</button>
+          <button type="button" id="cancelEdit" style="display:none">Cancel</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+document.getElementById('logoutBtn').onclick = () => {
+  window.location.href = 'login.html';
+};
+
+const form = document.getElementById('employeeForm');
+const tbody = document.getElementById('tbody');
+const empty = document.getElementById('empty');
+
+const nameInput = document.getElementById('name');
+const dateInput = document.getElementById('date_hired');
+const positionInput = document.getElementById('position');
+const departmentInput = document.getElementById('department');
+const statusInput = document.getElementById('status');
+const emailInput = document.getElementById('email');
+const contactInput = document.getElementById('contact');
+const notesInput = document.getElementById('notes');
+const photoInput = document.getElementById('photoInput');
+const photoDrop = document.getElementById('photoDrop');
+
+const searchInput = document.getElementById('q');
+const filterStatus = document.getElementById('filter-status');
+const filterDepartment = document.getElementById('filter-department');
+const sortSelect = document.getElementById('sort');
+
+let employees = JSON.parse(localStorage.getItem('employees')) || [];
+let editIndex = null;
+let photoData = ''; // base64 of image
+
+/* DRAG & DROP & CLICK */
+photoDrop.addEventListener('click', () => photoInput.click());
+photoDrop.addEventListener('dragover', e => {
+  e.preventDefault();
+  photoDrop.classList.add('hover');
+});
+photoDrop.addEventListener('dragleave', e => {
+  e.preventDefault();
+  photoDrop.classList.remove('hover');
+});
+photoDrop.addEventListener('drop', e => {
+  e.preventDefault();
+  photoDrop.classList.remove('hover');
+  const file = e.dataTransfer.files[0];
+  handlePhoto(file);
+});
+photoInput.addEventListener('change', () => handlePhoto(photoInput.files[0]));
+
+function handlePhoto(file) {
+  if (!file) return;
+  if(file.size > 2*1024*1024) { alert('Image too large! Max 2MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = () => {
+    photoData = reader.result;
+    photoDrop.innerHTML = `<img src="${photoData}">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* RESET */
+document.getElementById('resetBtn').onclick = () => {
+  form.reset();
+  photoDrop.innerHTML = `<span>Drop or Click</span>`;
+  photoData = '';
+  editIndex = null;
+};
+
+/* DEPARTMENT FILTER */
+function updateDepartmentFilter() {
+  const departments = [...new Set(employees.map(e => e.department).filter(Boolean))];
+  filterDepartment.innerHTML = '<option value="">All Departments</option>';
+  departments.forEach(d => {
+    filterDepartment.innerHTML += `<option value="${d}">${d}</option>`;
+  });
+}
+
+/* TABLE RENDER */
+function renderTable() {
+  tbody.innerHTML = '';
+  let filtered = [...employees];
+  const s = searchInput.value.toLowerCase();
+  filtered = filtered.filter(e =>
+    (e.name || '').toLowerCase().includes(s) ||
+    (e.position || '').toLowerCase().includes(s) ||
+    (e.department || '').toLowerCase().includes(s) ||
+    (e.email || '').toLowerCase().includes(s)
+  );
+  filtered = filtered.filter(e =>
+    (filterStatus.value === '' || e.status === filterStatus.value) &&
+    (filterDepartment.value === '' || e.department === filterDepartment.value)
+  );
+  const sortOrder = sortSelect.value;
+  filtered.sort((a,b) => {
+    if(sortOrder==='name_asc') return a.name.localeCompare(b.name);
+    if(sortOrder==='name_desc') return b.name.localeCompare(a.name);
+    if(sortOrder==='date_hired_asc') return new Date(a.dateHired||0)-new Date(b.dateHired||0);
+    if(sortOrder==='date_hired_desc') return new Date(b.dateHired||0)-new Date(a.dateHired||0);
+  });
+  if(!filtered.length){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  filtered.forEach((e,i)=>{
+    const idx = employees.indexOf(e);
+    tbody.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td><img src="${e.photo||'placeholder.png'}" style="width:45px;height:45px;border-radius:50%;object-fit:cover;border:2px solid #ddd;cursor:pointer;" onclick="viewImage('${e.photo||'placeholder.png'}')"></td>
+        <td>${e.name}<br><small>${e.position}</small></td>
+        <td>${e.department}</td>
+        <td>${e.email}<br>${e.contact}</td>
+        <td>${e.dateHired ? new Date(e.dateHired).toLocaleDateString() : 'N/A'}</td>
+        <td>${e.status}</td>
+        <td><button onclick="editEmployee(${idx})">Edit</button><button onclick="deleteEmployee(${idx})">Delete</button></td>
+      </tr>`;
+  });
+}
+
+/* SAVE */
+form.onsubmit = e => {
+  e.preventDefault();
+  const emp = {
+    name: nameInput.value.trim(),
+    dateHired: dateInput.value ? new Date(dateInput.value).toISOString() : '',
+    position: positionInput.value.trim(),
+    department: departmentInput.value.trim(),
+    status: statusInput.value,
+    email: emailInput.value.trim(),
+    contact: contactInput.value.trim(),
+    notes: notesInput.value.trim(),
+    photo: photoData
+  };
+  if(editIndex!==null) employees[editIndex]=emp; else employees.push(emp);
+  localStorage.setItem('employees', JSON.stringify(employees));
+  form.reset();
+  photoDrop.innerHTML = `<span>Drop or Click</span>`;
+  photoData='';
+  editIndex=null;
+  updateDepartmentFilter();
+  renderTable();
+};
+
+/* EDIT */
+window.editEmployee=i=>{
+  const e=employees[i];
+  nameInput.value=e.name;
+  dateInput.value=e.dateHired ? new Date(e.dateHired).toISOString().split('T')[0] : '';
+  positionInput.value=e.position;
+  departmentInput.value=e.department;
+  statusInput.value=e.status;
+  emailInput.value=e.email;
+  contactInput.value=e.contact;
+  notesInput.value=e.notes;
+  photoData=e.photo||'';
+  if(photoData) photoDrop.innerHTML=`<img src="${photoData}">`; else photoDrop.innerHTML=`<span>Drop or Click</span>`;
+  editIndex=i;
+};
+
+/* DELETE */
+window.deleteEmployee=i=>{
+  if(confirm('Delete this employee?')){
+    employees.splice(i,1);
+    localStorage.setItem('employees', JSON.stringify(employees));
+    updateDepartmentFilter();
+    renderTable();
+  }
+};
+
+/* VIEW IMAGE */
+window.viewImage=src=>{
+  const win=window.open("");
+  win.document.write(`<img src="${src}" style="width:100%">`);
+};
+
+/* EVENTS */
+searchInput.oninput=renderTable;
+filterStatus.onchange=renderTable;
+filterDepartment.onchange=renderTable;
+sortSelect.onchange=renderTable;
+
+/* INIT */
+updateDepartmentFilter();
+renderTable();
+</script>
+</body>
+</html>
