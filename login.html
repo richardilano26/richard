@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Employment Records Management</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+  <!-- Page Title at the Top -->
+  <header class="login-header">
+    <h1>Employment Records Management System</h1>
+  </header>
+
+  <!-- Login Card -->
+  <div class="login-card">
+    <p>Welcome! Manage your employees efficiently. Add, edit, view, and track all employee records in one place.</p>
+    
+    <input type="text" id="username" placeholder="Username">
+    
+    <div class="password-container">
+      <input type="password" id="password" placeholder="Password">
+      <span class="toggle-password" onclick="togglePassword()">Show</span>
+    </div>
+
+    <button id="loginBtn">Login</button>
+    <div class="create-account" onclick="createAccount()">Create Account</div>
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    // Default account in localStorage
+    if(!localStorage.getItem('accounts')) {
+      localStorage.setItem('accounts', JSON.stringify([{username:'admin', password:'123'}]));
+    }
+
+    function togglePassword() {
+      const passInput = document.getElementById('password');
+      const toggle = document.querySelector('.toggle-password');
+      if(passInput.type === 'password') {
+        passInput.type = 'text';
+        toggle.textContent = 'Hide';
+      } else {
+        passInput.type = 'password';
+        toggle.textContent = 'Show';
+      }
+    }
+
+    function createAccount() {
+      const username = prompt("Enter new username:");
+      if(!username) return;
+      const password = prompt("Enter new password:");
+      if(!password) return;
+
+      let accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+      if(accounts.find(acc => acc.username === username)) {
+        alert("Username already exists!");
+        return;
+      }
+
+      accounts.push({username, password});
+      localStorage.setItem('accounts', JSON.stringify(accounts));
+      alert("Account created successfully!");
+    }
+
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const accounts = JSON.parse(localStorage.getItem('accounts')) || [];
+
+      const valid = accounts.find(acc => acc.username === username && acc.password === password);
+      const messageDiv = document.getElementById('message');
+
+      if(valid) {
+        messageDiv.style.color = 'green';
+        messageDiv.textContent = 'Login successful! Redirecting...';
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1000);
+      } else {
+        messageDiv.style.color = 'red';
+        messageDiv.textContent = 'Invalid username or password!';
+      }
+    });
+  </script>
+
+</body>
+</html>

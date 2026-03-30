@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="settings.css">
+  <title>Settings - Employment Records Management</title>
+</head>
+<body>
+  <div class="container">
+    <!-- HEADER -->
+    <header style="display:flex; justify-content:space-between; align-items:center;">
+      <h1>Settings</h1>
+      <button id="logoutBtn" class="danger" style="display:flex; align-items:center; gap:6px;">
+        🔒 Logout
+      </button>
+    </header>
+
+    <!-- Navigation -->
+    <div class="nav-buttons" style="margin:12px 0; display:flex; gap:10px;">
+      <a href="index.html" class="btn">Home</a>
+      <a href="dashboard.html" class="btn">Dashboard</a>
+      <a href="settings.html" class="btn">Settings</a>
+    </div>
+
+    <div class="grid-settings">
+
+      <!-- THEME SETTINGS -->
+      <div class="card">
+        <h3>Theme Settings</h3>
+        <p>Choose your preferred theme for the system:</p>
+        <div class="theme-toggle">
+          <button id="lightTheme" class="btn">🌞 Light Mode</button>
+          <button id="darkTheme" class="btn">🌙 Dark Mode</button>
+        </div>
+      </div>
+
+      <!-- POLICY -->
+      <div class="card">
+        <h3>Policy</h3>
+        <p>This system stores employee records locally in your browser. Please make sure to backup your data regularly. No data is sent to any server. Users must follow company policies when using this tool.</p>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="card">
+        <h3>About</h3>
+        <p><strong>System Name:</strong> Employment Records Management</p>
+        <p><strong>Version:</strong> 1.0</p>
+        <p><strong>Developer:</strong>Marc Richard C. Ilano</p>
+        <p>This system is a client-side demo for managing employee records, including adding, editing, deleting, and exporting data.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    // Logout Button
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      window.location.href = 'login.html';
+    });
+
+    // Theme toggle
+    const lightBtn = document.getElementById('lightTheme');
+    const darkBtn = document.getElementById('darkTheme');
+
+    lightBtn.addEventListener('click', () => {
+      document.body.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    });
+
+    darkBtn.addEventListener('click', () => {
+      document.body.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    });
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme');
+    if(savedTheme === 'dark') {
+      document.body.classList.add('dark');
+    }
+  </script>
+</body>
+</html>

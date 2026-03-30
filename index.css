@@ -1,0 +1,245 @@
+:root {
+  --bg: #eef1f6;
+  --card: #ffffffcc;
+  --primary: #3a6df0;
+  --primary-dark: #2a57c8;
+  --danger: rgb(155, 3, 3);
+  --text: #1a1a1a;
+  --muted: #6f7b8a;
+  --radius: 14px;
+  --shadow: 0 6px 20px rgba(0,0,0,0.08);
+  --shadow-soft: 0 3px 10px rgba(0,0,0,0.05);
+  --transition: 0.25s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background: linear-gradient(145deg, #d1d9e6, #ffffff);
+  min-height: 100vh;
+  padding: 30px;
+  color: var(--text);
+  transition: background 0.5s;
+}
+
+.container {
+  max-width: 1400px;
+  margin: auto;
+}
+
+header {
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.small {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.nav-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.nav-buttons .btn {
+  padding: 8px 16px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.nav-buttons .btn:hover {
+  background: var(--primary-dark);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 25px;
+  margin-top: 20px;
+}
+
+.card {
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.4s ease;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.controls,
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1px solid #c7ceda;
+  background: #fff;
+  outline: none;
+  font-size: 14px;
+  transition: var(--transition);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(58,109,240,0.15);
+}
+
+.file-label {
+  background: var(--primary);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.file-label:hover {
+  background: var(--primary-dark);
+}
+
+#photoInput,
+#importFile {
+  display: none;
+}
+
+button {
+  padding: 10px 18px;
+  font-size: 14px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--primary);
+  color: white;
+}
+
+button:hover {
+  background: var(--primary-dark);
+}
+
+button.ghost {
+  background: #f4f5f7;
+  color: #333;
+}
+
+button.ghost:hover {
+  background: #e8e9eb;
+}
+
+button.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+button.danger:hover {
+  background: darkred;
+}
+
+.table-wrap {
+  overflow-y: auto;
+  border-radius: var(--radius);
+  border: 1px solid #ddd;
+  transition: box-shadow 0.3s;
+}
+
+.table-wrap:hover {
+  box-shadow: var(--shadow-soft);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f4f6fb;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+thead th {
+  padding: 12px;
+  text-align: left;
+  color: #4b5563;
+  font-size: 13px;
+  border-bottom: 1px solid #ddd;
+}
+
+tbody td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+tbody tr:hover {
+  background: #f5f7ff;
+}
+
+.empty {
+  text-align: center;
+  padding: 20px;
+  color: var(--muted);
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  object-fit: cover;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.3s;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+.row {
+  display: flex;
+  gap: 15px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="dashboard.css">
+  <title>Dashboard</title>
+</head>
+<body>
+  <div class="dashboard-container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h2 class="logo">ERM</h2>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html" class="active">Dashboard</a></li>
+          <li><a href="#">Reports</a></li>
+          <li><a href="settings.html">Settings</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+      <header class="main-header">
+        <h1>Dashboard Overview</h1>
+        <div class="small">Employment Records Management System</div>
+      </header>
+
+      <!-- STATS -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Employees</h3>
+          <p id="stat-total">0</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Full-time</h3>
+          <p id="stat-full">0</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Part-time</h3>
+          <p id="stat-part">0</p>
+        </div>
+
+        <div class="stat-card">
+          <h3>Contract</h3>
+          <p id="stat-contract">0</p>
+        </div>
+      </section>
+
+      <!-- RECENT EMPLOYEES -->
+      <section class="recent">
+        <h2>Recent Employees</h2>
+
+        <table class="recent-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Position</th>
+              <th>Status</th>
+              <th>Date Hired</th>
+            </tr>
+          </thead>
+          <tbody id="recent-body"></tbody>
+        </table>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // SAFE DATE FORMAT FUNCTION
+    function formatDate(emp) {
+      const dateStr = emp.dateHired || emp.date_hired;
+
+      if (!dateStr) return 'No Date';
+
+      const d = new Date(dateStr);
+      if (isNaN(d)) return 'No Date';
+
+      return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    function loadDashboard() {
+      let records = JSON.parse(localStorage.getItem('employees') || '[]');
+
+      // 🔹 MIGRATE OLD DATA SAFELY
+      records = records.map(emp => {
+        if (!emp.dateHired && emp.date_hired) {
+          emp.dateHired = emp.date_hired;
+        }
+        return emp;
+      });
+
+      // STATS
+      document.getElementById('stat-total').textContent = records.length;
+      document.getElementById('stat-full').textContent =
+        records.filter(r => r.status === 'Full-time').length;
+      document.getElementById('stat-part').textContent =
+        records.filter(r => r.status === 'Part-time').length;
+      document.getElementById('stat-contract').textContent =
+        records.filter(r => r.status === 'Contract').length;
+
+      // SORT BY DATE HIRED (LATEST FIRST)
+      const recent = [...records]
+        .sort((a, b) => {
+          const dateA = new Date(a.dateHired || 0);
+          const dateB = new Date(b.dateHired || 0);
+          return dateB - dateA;
+        })
+        .slice(0, 5);
+
+      const tbody = document.getElementById('recent-body');
+      tbody.innerHTML = '';
+
+      // DISPLAY TABLE
+      recent.forEach(emp => {
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+          <td>${emp.name || ''}</td>
+          <td>${emp.position || ''}</td>
+          <td>${emp.status || ''}</td>
+          <td>${formatDate(emp)}</td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.onload = loadDashboard;
+  </script>
+</body>
+</html>
